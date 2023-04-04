@@ -1,0 +1,132 @@
+DBMS(Data Base Management System) : 데이터베이스 관리 시스템
+관계형 데이터베이스 
+테이블 -
+column(열) - 예) 번호 이름 국어 수학
+row(행),레코드 - 예)  1번 이건상 90  100 
+-
+system계정 : 오라클데이터베이스 유지보수 관리할 때 사용하는 계정
+hr계정 : 처음 사용하는 사용자의 실습을 위해 만들어 놓은 교육용 계정
+사용자계정 : 사용자가 개발을 위해 생성하는 계정
+
+create - 생성 grant - 권한부여 alter - 변경 conn - 연결
+순서 (권한 부여는 시스템 사용자로 접속 후 줘야한다.)
+DBA권한을 가진 시스템 사용자로 접속 (system)-> 사용자 계정 생성 -> 계정접속 -> 테이
+블 생성
+사용자 계정 생성(11g) - create user 생성할계정이름 identified by 비밀번호;
+12c이후부터는 create user C##생성할계정이름 identified by 비밀번호; - (잘사용안함)
+alter session set "_ORACLE_SCRIPT"=true;를 입력해서 세션을 바꾸고 11g처럼 생성
+
+session 권한 부여 -> grant create session to 부여할계정이름;
+계정접속 -> conn 계정이름/비밀번호; (단, system으로부터 권한을 부여 받아야 접속가능)
+현재 사용자 보기 - show user;
+
+테이블 권한 부여 -> grant create table to 부여할계정이름;
+데이터 정의어(DDL: Data Definition Language) // 명령어 - 대소문자 구분x, 자료- 구분o
+1. CREATE - 생성 2. ALTER - 변경 3. DROP - 삭제 4. RENAME - 이름변경 5. TRUNCATE - 저장공간 
+삭제
+1. CREATE TABLE 테이블명 (컬럼명 데이터타입, 컬럼명 데이터타입.....);
+테이블 스페이스 공간 부여 - alter user 계정이름 default tablespace users quota 할당양 
+on users;
+데이터 조작어(DML: Data Mainpulation Language) (반드시 뒤에 ;을 넣어야 한다)
+1. INSERT - 데이터 입력 2. UPDATE - 데이터 수정 3.DELETE - 데이터 삭제 4. SELECT - 데이터 조회
+단. 4번 SELECT 는 질의어(DQL:Data Quary Language)에 넣기도 한다.
+1. INSERT INTO 테이블명(컬렴명,컬럼명...)VALUES(값,값...); 
+ (컬럼이 1가지이거나 모든 컬럼에 다 넣을거면 컬럼명 생략 가능)
+
+hr 계정 수업
+ 11g 시스템 계정 접속 -> alter user hr account unlock; (교육용 계정 잠금 해제) -> alter user hr 
+identified     by 비밀번호; (교육용 계정 비밀번호 설정) -> conn hr/비밀번호; (교육용 계정 접속)
+ 18c 시스템 계정 접속 -> @?/demo/schema/human_resources/hr_main.sql -> hr -> users -> temp 
+-> 저장할 위치(폴더에 한글x) 예) C:\oracle -> alter user hr identified by 비밀번호; (교육용 계정 비
+밀번호 설정) -> conn hr/비밀번호; (교육용 계정 접속)
+ 공통(복습할떄) -> 교육용 테이블 가져오기 -> 교육용자료경로\EMP_EXAMPLE.sql  
+테이블 구조를 살펴보기 위한 명령 -> desc 테이블명
+desc employee  (사원정보 테이블)
+Name (컬럼명)                      NULL?         Type (데이터 타입)
+ ----------------------------------------- -------- ----------------------------
+ ENO        사원번호            NOT NULL       NUMBER(4)      숫자 최대 4자리
+ ENAME      이름                                VARCHAR2(10)   문자 최대 10자리
+ JOB         업무명                              VARCHAR2(9)     문자 최대 9자리
+ MANAGER   사수의사원번호                      NUMBER(4)
+ HIREDATE    입사일                               DATE           날짜 
+ SALARY      월급여                            NUMBER(7,2)      숫자 전체 7자리, 소수2자리 
+허용
+ COMMISSION 수당(인센티브)                    NUMBER(7,2)      
+ DNO         부서번호                          NUMBER(2) 
+
+desc department (부서정보 테이블)
+ Name                  Null?               Type
+ ----------------------------------------- ----------------------------
+ DNO    부서번호       NOT NULL       NUMBER(2)
+ DNAME  부서명                        VARCHAR2(14)
+ LOC     지역명                         VARCHAR2(13)
+
+desc salgrade (급여정보 테이블)
+ Name                                      Null?          Type
+ ----------------------------------------- -------- ----------------------------
+ GRADE  급여등급                                            NUMBER
+ LOSAL  급여하한가                                           NUMBER
+ HISAL   급여상한가                                           NUMBER
+
+set linesize 130 = 기본이 가로로 80줄인데 더 길다면 조절할 수 있다.
+set pagesize 20 = 기본이 세로로 구분선 공백 포함 14줄인데 한번에 더 보게 조절 가능
+ 
+데이터를 조회하기 위한 select문 
+SELECT 컬럼명,컬럼명.... FROM 테이블명 WHERE 절 GROUP BY 절 HAVING 절 ORDER BY 
+절;
+where 절 : 조건 나열 , group by 절 : 그룹을 묶는 것 ,having 절 : 그룹의 조건, order by 절 : 정렬 
+순서
+    select * from employee; = employee 테이블의 모든 컬럼 검색,
+    select eno, ename from employee; = employee 테이블의 eno,ename 컬럼 검색
+컬럼명에 산술연산(+ - * / )이 나올 수 있다. 
+예) select ename, salary, salary*12 from employee; = ename, salary, 컬럼엔 없지만 salary*12의 값이 
+나온다.
+  단. select ename, salary, job, comission, salary*12+comission from employee; (comission - NULL
+값이 존재)
+  처럼 null 값이 있으면 비교, 산술연산이 불가능하다. 만약 하려면 nvl함수를 사용해야한다.
+nvl(컬럼명 또는 수식, null일 때 처리할 값) [뒤에서 더 자세히 배움]
+select ename, salary, job, nvl(commission,0), salary*12+nvl(commission,0) from employee;
+    commision의 값이 있다면 그 값을 넣고 없으면 0을 넣는다.
+select ename, salary*12+nvl(commission,0) 연봉 from employee;  (연봉)처럼 한칸 띄우고 쓰는걸 별
+칭 이라고 한다. salary*12+nvl(commission,0) 은 컬럼이 없는 항목이라 컬럼명에 수식이 그대로 나오
+는데 별칭을 주면 컬럼명에 별칭이 나온다. 
+컬럼명이 있어도 별칭 사용 가능하다. 예) ename 사원이름, salary
+별칭 사용법 - 1. 한칸 띄우고 별칭명 2. 컬럼명or수식 as 별칭명 3. 한칸 띄우고 “ ”(쌍따움표)
+  별칭명에 공백을 두거나 특수문자를 사용하고 싶을때는 3번 “”를 사용해야한다.
+
+distinct = 중복된 데이터를 한번만 출력
+예) select distinct dno from employee; 
+
+desc dual (한 행으로 출력하고 싶을 때 사용하는 오라클에서 만들어둔 테이블) 
+Name                         Null?            Type
+ ----------------------------------- -------- ------------------------------------------------
+ DUMMY                                      VARCHAR2(1)
+사용 예: select sysdate(오늘 날짜를 가져오는 함수) from employee;
+를 하면 employee테이블엔 14개의 자료가 있기 때문에 날짜가 14번 찍힌다.
+따라서 1번만 찍고 싶다면 select sysdate from dual;을 사용한다.
+where 조건 절 //비교연산자(=같다, <작다, <=작거나같다, >크다, >=크거나같다, <>같지않다(!=,^=) 
+)
+select 컬럼명 from 테이블명 where 컬럼명 비교연산자 비교값;
+예) select * from employee where salary >= 1500; = 급여가 1500이상인 것.
+만약 비교할 값이 문자일 경우 ‘’ (홑따옴표)를 사용해야 한다.
+예) select * from employee where job = 'SALESMAN'; = 업무명이 SALESMAN인 것
+날짜를 비교할 경우에도 ‘’(홑따옴표)를 사용해야 한다.
+예) select * from employee where hiredate <= '1981/01/01'; = 입사일이 81년1월1일 이전인 것
+AND - 다 만족했을 때, OR - 하나라도 만족했을 때 , NOT - 아닐 때
+예) select * from employee where dno = 10 and salary >= 2000; = 부서명이 10이고 급여가 2000
+이상인 것
+예) select * from employee where dno = 10 or salary >= 2000; = 부서명이 10이거나 급여가 2000
+이상인 것
+예) select * from employee where not dno = 10; = 부서명이 10이 아닌 것 not dno = 10 은 dno 
+<> 10 
+구간을 검색할 때 사용도 가능하다
+예) select * from employee where salary >= 1000 and salary <= 1500; = 급여가 1000~1500사이인 
+것
+ select * from employee where salary < 1000 or salary > 1500; = 급여가 1000보다 작거나 1500보
+다 큰 것
+컬럼명 BETWEEN A AND B (A-하한가부터 B-상한가까지 포함되는 조건을 검색)
+예) select * from employee where salary between 1000 and 1500; = 구간 검색 처음 예제와 같음
+// (salary between 1000 and 1500; 와 salary >= 1000 and salary <= 1500; 같음) 
+not을 사용해서 select * from employee where salary not between 1000 and 1500; = 두 번째 예재
+와 같음
+// (not between 1000 and 1500; 와 salary < 1000 or salary > 1500; 같음)
