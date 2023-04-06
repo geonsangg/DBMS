@@ -1,0 +1,112 @@
+CONCAT : 문자의 값을 연결한다.  // 문자 연결연산 느낌
+SUBSTR : 문자를 잘라 추출한다.
+ 사용법 - substr(대상, 시작위치, 추출할 개수);
+  예) select * from employee where substr(hiredate, 1, 2) = '87';   = 87년도 입사자만 검색
+     select * from employee where substr(ename,-1,1) = 'N';    = N으로 끝나는 사람 검색 ( -1 = 맨뒤)
+INSTR : 특정 문자의 위치 값을 반환
+  사용법 - instr(대상, 찾을 글자, 시작위치, 몇 번째 발견)  // 시작위치, 몇 번째 발견 생략가능
+  예) select instr('oracle mania','a',5,2) from dual;   =
+     oracle mania에서 a를 찾는데 5번째부터 시작해서 2번째 발견 되는 것의 위치
+     select * from employee where instr(ename, 'R', 3, 1) = 3;  = 3번째 글자가 R인 사람
+LPAD : 왼쪽으로 채운다.. ,  RPAD : 오른쪽으로 채운다.
+  사용법 - lpad(대상, 자릿수, 채울문자)  //  rpad 도 사용법 같음.
+  예) select LPAD(salary, 10, '*') from employee; = salary를 10자리로 출력하는데 남는 자리 왼쪽을 *로 채움.
+TRIM : 양쪽 공백을 제거, LTRIM : 왼쪽 공백을 제거, RTRIM : 오른쪽 공백을 제거 
+  사용법 - trim(대상)  // ltrim, rtrim 동일
+ 숫자함수
+ROUND : 반올림  
+  사용법 - round(대상) , round(대상 , 출력할소수점자리)
+  예) select round(4.2468),round(4.2468,2), round(4.2468,-1) from dual;  = 
+        결과 :  4,    4.25,    0 (-1 = 1에자리에서 반올림 한다)
+CEIL : 정수(올림)  , FLOOR : 정수(내림)
+  사용법 - ceil(대상) , floor(대상)
+  예) select ceil(4.2468), ceil(9.0001), ceil(9.0000) from dual;  = 결과 :  5, 10, 9 
+     select floor(4.2468), floor(9.0001), floor(9.0000) from dual; = 결과 : 4, 9, 9
+TRUNC : 특정 자릿수에서 잘라낸다.
+  사용법 - trunc(대상), trunc(대상, 출력할소수점자리)
+  예) select trunc(4.2468),trunc(4.2468,2), trunc(4.2468,-1) from dual;
+       결과 :  4,    4.24,    0 (-1 = 1에 자리를 자른다.)
+MOD : 나머지 구하기 REMAINDER : 나머지 구하기
+  사용법 - mod (대상, 나눌값), remainder (대상, 나눌값)
+  예) select mod(10,2), mod(25,3), mod(31,5) from dual;  = 결과 0 , 1,  1
+    select remainder(10,2), remainder(25,3), remainder(31,5) from dual; = 결과 0, 1, 1
+ mod , remainder 차이점 = 
+   select mod(19,4), remainder(19,4) from dual;  = 결과 : mod = 3, remainder = -1 
+     mod공식 -      mod(n2, n1) => n2 - n1 * floor(n2/n1)  -- 19 - 4 * 4(19/4의 내림)   
+remainder공식 - remainder(n2, n1) => n2 - n1 * round(n2/n1) -- 19 - 4 * 5(19/4의 반올림)
+POWER : 제곱 , SQRT : 제곱근
+  power(대상, 제곱수) 예) power ( 3, 2)  = 3의 2제곱 결과 : 9
+  sqrt(대상) - 루트값 예) sqrt(2) = 2의 루트값
+ 날짜 함수
+SYSDATE : 시스템의 현재 날짜
+  예) select sysdate from dual;  = 결과 : 23/04/06
+     select sysdate-1 어제, sysdate 오늘, sysdate+1 내일 from dual;   =
+    결과 : 별칭 어제 = 23/04/05, 오늘 = 23/04/06, 내일 = 23/04/07
+    select ename, sysdate-hiredate from employee;  =
+     현재날짜 - 입사일해서 근무일수를 구하는 것 단, 시간까지 소수점으로 나옴.(floor,round)하면 됨
+    select hiredate, trunc(hiredate, 'MONTH') from employee;  =
+    trunc로 ‘MONTH'로 잘라내면 그달에 1일로 출력됨 예( 80/12/17 -> 80/12/01)
+MONTH_BETWEEN : 날짜와 날짜 사이의 개월 수
+  사용법 - month_between(날짜,날짜) 단, 앞에 적은 날짜가 커야 양수로 나옴.
+  예) select ename, trunc(month_between(sysdate, hiredate)) from employee;  = 근무 개월수 구하기
+ADD_MONTHS : 특정개월수를 더한 날짜
+  사용법 - add_months(날짜,더할개월수) 
+  예) select add_months(sysdate,21) from dual;  = 오늘부터 21개월 후
+NEXT_DAY : 날짜를 기준으로 제일 먼저 오는 요일의 날짜
+  사용법 - next_day(날짜,요일)
+  예) select next_day(sysdate, '토요일') from dual;  = 결과 : 23/04/08 (오늘은 23/4/6 목요일)
+LAST_DAY : 날짜가 속한 달의 마지막 날짜
+ 사용법 - last_day(날짜)
+ 예) select last_day(sysdate) from dual;  = 결과 : 23/04/30  (오늘은 23/4/6 목요일) 
+
+날짜표현
+YYYY : 년도를 4자리, YY : 년도를 2자리, MM: 월을 숫자로, MON : 월을 알파벳으로 표현(한국은 1월,,)
+DD : 일을 숫자로, DAY : 요일표현, DY : 요일약어(월,화,수,,,) DL : 몇년 몇월 몇일 몇요일로
+시간 표현
+AM : 오전, 오후 HH : 12시간 표시(오후 5시여도 5), HH24 :24시간 표시(오후 5 = 17) MI : 분, SS : 초
+  예) select to_char(sysdate, 'yyyy/mm/dd, hh24:mi:ss') from dual;  = 2023/04/06 17:52:43
+형변환함수 // L: 각지역별 통화기호, 0 : 자리수가 맞지 않을 경우 0으로 채움, 9 : 남는자리는 공백이된다. 
+TO_CHAR : 날짜형 또는 숫자형을 문자형으로 변환
+  예) select to_char(hiredate, 'yy-mm-dd day') from employee; =입사일을 (년년-월월-일일 요일)로 출력한다.
+TO_DATE :문자형을 날짜형으로 변환
+  예) select trunc(sysdate-to_date('23/01/01')) from dual; = 올해가 얼마나 지났는지 보기
+TO_NUMBER : 문자형을 숫자형으로 변환
+ 예) select TO_NUMBER('100,000','999,999')-TO_NUMBER('50,000','999,999') from dual;  =
+    ‘ ’ 와 , 가 있어 문자형이지만 숫자형으로 변환해서 계산해서 50000이 나온다. 
+
+NVL : null 값을 대체값으로 바꿈
+  사용법 - nvl(컬럼이나수식, 대체값)
+  예) nvl(hiredate, '2023/01/01')  - 입사일이 null이면 2023/01/01로 대체하겠다.
+NVL2 : 검사값이 null이 아니면 첫 번째 컬럼이나수식, null이면 두 번째 컬럼이나 수식을 출력한다.
+  사용법 - nvl2(검사값, 컬럼이나 수식, 컬럼이나 수식)
+  예) select ename, salary, nvl2(commission, salary*12+commission, salary*12) from employee;  =
+     커미션이 있으면 12를 곱하고 커미션을 더한 수식, 커미션 없으면 12만 곱한 값 출력
+NULLIF : 두 표현식을 비교하여 값이 동일한 경우 null값을 반환하고 동일하지 않으면 첫 번째 표현식 반환 
+  사용법 - nullif(표현식, 표현식)  단, null은 아무것도 출력되지 않는다. // (2*3,1*6) = 동일, (‘A,'A') 동일
+  예) select nullif('A','A'), nullif('A','B') from dual;  =  공백  A
+COALESCE : 처음부터 시작해서 null이 아닌값이 나오면 그 값을 출력
+ 사용법 - coalesce(수식이나 값, 수식이나값,........값)
+DECODE : 지정값에 맞는 결과값을 출력 (switch문)
+  사용법 - decode(표현식이나컬럼, 지정값1, 결과1, 지정값2, 결과2, 지정값3, 조건3,,,,,,,,,,,,,기본결과)
+  예) select ename, decode(dno, 10,'경리부', 20,'인사과', 30,'영업부','백수') from employee;   =
+    dno 가 10이면 경리부, 20이면 인사과, 30이면 영업부, 조건에 맞지 않으면 백수가 출력된다.
+CASE :
+  사용법 - case when 조건1 then 수식이나결과값1, when 조건2 then 수식이나결과값2,
+          when 조건3 then 수식이나결과값3,,,,,,,, else 수식이나 결과값  end
+   예) select ename, salary, case when dno=10 then '경리부' when dno=20 then '인사과' when dno=30 then   
+      '영업부' else '백수' end from employee;    =
+      dno가 10과 같다면 경리부 20과 같다면 인사과 30과 같다면 영업부 조건에 만족하지 않으면 백수를 
+      출력한다.
+
+그룹함수 (통계)    // null값은 무시하고 있는 값만 한다.
+SUM : 그룹합계 , AVG : 그룹평균, MAX : 그룹의 최대값, MIN : 그룹의 최소값, 
+COUNT : 그룹 총 개수
+  예) select sum(salary) 급여총액, avg(salary) 급여평균, max(salary) 최고급여, min(salary) 최저급여 from 
+employee;   = employee의 salary컬럼그룹에 총액, 평균, 그룹에 최고급여, 최저급여가 출력
+     select max(hiredate), min(hiredate) from employee;  = 날짜에 max는 숫자가 년-월-일 순으로 큰날짜
+     select count(*) 총사원수 from employee;  // *로 하면 행(레코드) 개수를 반환한다.
+     만약 count(컬럼명)을 했을 경우 컬럼에 null값이 있으면 null은 카운트 되지 않는다.
+
+GROUP BY 절 : 컬럼을 그룹화한다.
+ 예) select dno "부서 번호", avg(salary) "급여 평균" from employee group by dno; - 부서별 평균
+    그룹한 컬럼은 앞에 나와야 의미가 있다. (뭐가 뭔지 구분이 안됨)
