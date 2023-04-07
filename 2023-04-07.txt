@@ -1,0 +1,66 @@
+그룹함수는 두 번까지 중첩가능하다.
+  예) select max(avg(salary)) from employee group by dno;  = 부서별 평균중 가장 큰값
+
+HAVING 절 (그룹 결과 제한)
+  예) select dno, max(salary) from employee group by dno having max(salary) >= 3000;  =
+    최고급여가 3000이 넘는 그룹만
+    select job, count(*), sum(salary) from employee where job <> 'MANAGER' group by job having 
+sum(salary) >= 5000;    =
+    업무로 그룹을 묶어서 업무가 매니저와 같지 않은 것중에 급여 합중 5000이 넘는것
+
+JOIN (두 개 이상의 테이블을 결합) -
+반드시 조건을 부여해야한다. 단, 조건을 생략한 경우 행의 모든 조합을 표시하는 카디시안 곱이 생성된다.
+카디시안 곱 - 모든 데이터가 결합되어 있는 의미없는 결과가 나온다.
+  예) select * from department(4행), employee(14행);  = 결과 : 56행이 출력된다.
+EQUI JOIN : 조인중에서 가장 많이 사용되는 조인 (where 절을 이용하는 조인) 
+  예) select * from employee, department where employee.dno=department.dno;  =
+    employee의 dno와 department의 dno가 같은 employee와department를 결합한다.
+    select eno, ename, dname from employee, department where employee.dno=department.dno and eno = 
+7788;   = 사원번호가 7788인 사원의 사원번호, 이름, 부서명을 출력하는 것
+select eno, ename, dname,dno from employee, department where employee.dno=department.dno and eno = 
+7788;  =  eno, ename은 employee, dname은 department에만 존재하지만 dno는 두 테이블에 다 존재하기 
+때문에 어느 테이블에서 가져올지 애매하기에 오류가 발생한다. 그럴땐           
+select employee.eno, employee.ename, department.dname, employee.dno from employee, department where 
+employee.dno=department.dno and employee.eno=7788; 이처럼 소속을 명확히 작성해줘야 한다.
+하지만 위처럼 작성하면 너무 길어지기 때문에 중복되지 않는 컬럼은 테이블 명시를 생략하고 중복되는 컬
+럼만 테이블명을 명시해줘도 된다. 예) eno, ename, dname, employee.dno 
+혹은 테이블명이 너무 길 경우 테이블에 별칭을 줘서 사용해도 된다. 예) select e.eno, e.ename, d.dname, 
+e.dno from employee e, department d where e.dno = d.dno and e. eno = 7788;
+
+EQUI JOIN 분류  : 3개의 조인은 where절에 조인조건을 주지 않고 일반조건만 준다. 
+ 1. NATURAL JOIN - (from 테이블명 natural join 테이블명)   
+  - 두 테이블에 공통 컬럼을 알아서 찾는다.     단, 컬럼명과 데이터타입이 같아야 찾는다. 
+    (공통컬럼은 별칭을 줄 수 없다.)
+  예) select e.eno, e.ename, d.dname, dno from employee e natural join department d where e.eno = 7788;
+ 2. JOIN ~~~ USING - (from 테이블명 join 테이블명 using(조인조건))
+  - using은 데이터타입이 달라도 컬럼명이 같다면 join 할 수 있다.        
+   (공통컬럼은 별칭을 줄 수 없다.)
+  - select e.eno, e.ename, d.dname, dno from employee e join department d using(dno) where e.eno = 7788;
+ 3. JOIN ~~~ ON - (from 테이블명 join 테이블명 on 테이블.조인조건=테이블.조인조건)
+  - on은 조인할 컬럼명이 달라도 같은 값만 있다면 join 할 수 있다. 
+   (공통컬럼을 명확히 명시해야한다.)
+  - select e.eno, e.ename, d.dname, e.dno from employee e join department d on e.dno=d.dno where e.eno 
+= 7788;
+
+NON-EQUI JOIN - ( 구간안에 있는지 , =이외의 < , > 같은 등호도 사용가능) 
+ 예) select ename, salary, grade from employee, salgrade where salary between losal and hisal;  =
+ salary가 losal과 hisal 구간의 사이에 속하면 그 속한 등급을 매기는 것
+  select e.ename, d.dname, e.salary, s.grade from employee e, department d, salgrade s where e.dno=d.dno 
+and salary between losal and hisal; 처럼 3개의 테이블 조인도 가능하다.
+
+SELF JOIN - 자기 자신과 조인하는 것
+ 예) select employees.ename as 사원이름, manager.ename as 직속상관이름 from employee employees, 
+employee manager where employees.manager = manager.eno;   =
+  employee 안에는 manager의 사원번호만 나오고 이름은 안나온다 따라서 eno와 manager를 비교해서 이
+름을 가져온다.
+ select employees.ename 사원이름, manager.ename 직속상관이름 from employee employees join employee 
+manager on employees.manager = manager.eno;  같은 예시 join on으로
+
+inner join : 두 값중 하나라도 null 값이 있을 경우 그 행은 출력되지 않음(지금까지 한 것)
+outer join : 조인 조건에 (+) 연산자를 사용해서 null값인 가진 행의 결과도 출력 (밑에 예)
+ 예) select employees.ename 사원이름, manager.ename 직속상관이름 from employee employees join 
+employee manager on employees.manager = manager.eno(+);     =
+  (+)를 붙이지 않으면 king의 manager가 null값이기에 13행이 출력되고 위처럼 (+)를 붙이면 king의 행까
+지 14행이 출력된다.  
+단. from절에 왼쪽에 테이블에 null값이 있으면 조인조건 오른쪽에 (+)를 
+             오른쪽 테이블에 null값이 있으면 조인조건 왼쪽에 (+)를 해야한다.
