@@ -1,0 +1,50 @@
+FOREIGN KEY(외래키) 는 부모테이블의 컬럼 값을 참조하는 자식 테이블의 컬럼
+  (※ 부모 키는 자식 테이블에서 참조하는 부모테이블의 컬럼. 부모 키가 되기 위한 컬럼은 반드시 부모 테
+이블의 기본 키(PRIMARY KEY)나 유일키(UNIQUE)로 성정되어 있어야 한다.
+  예) create table emp_copy (eno number(4) constraint emp_eno_pk primary key, ename varchar(10), job 
+varchar(10), dno number(2) constraint emp_dno_fk references department); 
+  // dno는 department의 dno를 부모로 하는 외래키이다.
+CHECK : 값의 범위나 조건을 지정하여 설정된 값만을 허용  
+  예) create table emp_second (eno number(4) constraint empc_eno_pk primary key, ename varchar2(10), 
+salary number(8) constraint emp_sal_chk check(salary > 0)); 
+  // salary는 0보다 큰 값만 들어올 수 있다.
+외 DEFAULT = 값을 넣지 않으면 기본값 
+  예) create table emp_second (eno number(4) constraint empc_eno_pk primary key, ename varchar2(10), 
+salary number(8) default 1000);  이렇게 salary를 default 1000을 주고
+    insert into emp_second (eno, ename) values (2000,'박찬호');처럼 salary를 주지 않으면 1000이 들어감
+// 테이블의 구조와 데이터를 복제해서 새로운 테이블을 만들면 not null 제외 제약 조건은 따라오지 않는다.
+테이블 생성후 기본키 넣기 - alter table 추가할테이블명 add constraint 제약조건이름 제약조건(컬럼명);
+  예) alter table emp_second add constraint emps_eno_pk primary key(eno);
+외래키 넣기 - alter table 추가할테이블명 add constraint 제약조건이름 foreign key(컬럼명) references 참조할
+테이블명(참조할컬럼명);
+  예) alter table emp_second add constraint emps_dno_fk foreign key(dno) references dept_second(dno);
+// unique,primary key, foreign key, check 는 add로 넣을 수 있지만 not null은 add로 추가 할 수 없다.
+not null 넣기 - alter table 추가할테이블명 modify 컬럼명 constraint 제약조건이름 not null; 
+제약 조건 삭제하기 - alter table 테이블명 drop constraint 삭제할제약조건이름;
+  예) alter table emp_second drop constraint ems_ename_nn;
+  단. 외래키가 설정되어있는 기본키나 unique는 삭제할 수 없다. 그럴땐 cascade로 연관된 것도 한번에 지
+우면 가능하다. 예) alter table dept_second drop primary key cascade; = dept_second의 primary key와, 그와 
+연결된 다른 모든 제약조건이 다 삭제된다. //primary key = 유일하기 때문에 이름대신 사용가능하다.
+제약조건 활성화(enable) 및 비활성화(disable)
+ 비활성화 - alter table 변경할테이블명 disable constraint 제약조건이름;
+   예) alter table emp_second disable constraint emps_dno_fk;
+ 활성화 - alter table 변경할테이블명 enable constraint 제약조건이름;
+  단, 제약조건을 활성화시에 제약조건에 맞지 않으면 활성화가 되지않음 // 즉, 예를 들어 부모키에 
+10,20,30이 들어있고 비활성화된 외래키에 10,20,30,40이 들어있으면 외래키가 활성화 되지않음.
+
+트랜잭션 - 데이터 처리에서 논리적으로 하나의 작업 단위를 의미
+데이터의 추가, 수정, 삭제 등 데이터를 조작하는 명령어(DML)는 실행됨과 동시에 트랜잭션이 진행된다.
+commit - DML작업이 성공적으로 처리되도록 하는 명령 -> 데이터베이스에 모두 반영하기 위해서 변경된 
+내용을 모두 영구 저장한다. commit 명령어를 수행하면 하나의 트랜잭션 과정이 종료된다.
+rollback - DML작업을 취소하는 명령 (트랜잭션 처리 과정에서 발생한 변경 사항을 취소) 트랜잭션 종료
+
+다른 계정 테이블 보기(권한 필요) - 예) select * from hr.employee;  (계정.테이블명)
+권한 부여 방법은(부여할 계정에 로그인 상태여야함) - 
+grant 부여할권한(select,insert,delete 등등) on 부여할계정명.부여할테이블명 to 부여받을계정명;
+  예) grant select on hr.employee to userlgs;  // hr계정에 접속상태임.
+권한 인계 권한 까지 줄 수 있음. 즉, 부여받은 권한을 다른 제 3자에게 부여할 수 있게 함.
+  예) grant select on hr.employee to userlgs with grant option; // hr계정에 접속상태, uselgs가 권한받음
+     grant select on hr.employee to oracle_lgs; // userlgs에 접속상태, oracle_lgs도 hr.employee를 select를 볼 
+수 있는 권한을 받음
+권한 박탈 - revoke 박탈한권한 on 부여한계정명.부여한테이블명 from 박탈할계정명; 
+  예) revoke select on hr.employee from userlgs; // hr계정에 접속상태.
